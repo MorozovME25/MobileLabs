@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Lab1</string>
+    <string name="app_logo_desc">App Logo</string>
+    <string name="onboard_description">Современное приложение для общения и управления задачами. Простой интерфейс, мощные функции.</string>
+    <string name="feature1">Быстрый чат</string>
+    <string name="feature1_title">Мгновенные сообщения</string>
+    <string name="feature1_desc">Общайтесь в реальном времени с друзьями и коллегами.</string>
+    <string name="feature2">Умные задачи</string>
+    <string name="feature2_title">Организуйте свою работу</string>
+    <string name="feature2_desc">Создавайте, отслеживайте и завершайте задачи легко.</string>
+    <string name="sign_in">Войти</string>
+    <string name="sign_up">Зарегистрироваться</string>
+</resources>
