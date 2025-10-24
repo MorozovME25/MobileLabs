@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Lab1">
         <activity
-            android:name=".Fragments.OnboardActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,14 +21,14 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".Fragments.HomeActivity"/>
+<!--        <activity-->
+<!--            android:name=".Fragments.HomeActivity"/>-->
 
-        <activity
-            android:name=".Fragments.SignInActivity"/>
+<!--        <activity-->
+<!--            android:name=".Fragments.SignInActivity"/>-->
 
-        <activity
-            android:name=".Fragments.SignUpActivity"/>
+<!--        <activity-->
+<!--            android:name=".Fragments.SignUpActivity"/>-->
 
     </application>
 

@@ -2,45 +2,40 @@ package com.example.lab1.Extentions
 
 import android.os.Bundle
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 
-abstract class BaseActivity : AppCompatActivity() {
+open class BaseFragment : Fragment() {
 
-    private val tag: String
+    private val teg: String
         get() = this::class.java.simpleName
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(tag, "onCreate")
+        Log.d(teg, "onCreate")
     }
 
     override fun onStart() {
         super.onStart()
-        Log.d(tag, "onStart")
+        Log.d(teg, "onStart")
     }
 
     override fun onResume() {
         super.onResume()
-        Log.d(tag, "onResume")
+        Log.d(teg, "onResume")
     }
 
     override fun onPause() {
         super.onPause()
-        Log.d(tag, "onPause")
+        Log.d(teg, "onPause")
     }
 
     override fun onStop() {
         super.onStop()
-        Log.d(tag, "onStop")
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        Log.d(tag, "onRestart")
+        Log.d(teg, "onStop")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(tag, "onDestroy")
+        Log.d(teg, "onDestroy")
     }
 }
