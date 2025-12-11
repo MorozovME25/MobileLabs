@@ -4,29 +4,39 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import androidx.navigation.fragment.findNavController
 import com.example.lab1.Extentions.BaseFragment
-import com.example.lab1.MainActivity
 
 import com.example.lab1.R
+import com.example.lab1.databinding.ActivityOnboardBinding
 
 class OnboardFragment : BaseFragment() {
+
+    private var _binding: ActivityOnboardBinding? = null
+    private val binding get() = _binding ?: throw RuntimeException("binding is null")
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.activity_onboard, container, false)
+        _binding = ActivityOnboardBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        view.findViewById<Button>(R.id.btnSignIn).setOnClickListener {
-            (activity as MainActivity).navigateToSignInFromOnboard()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.btnSignIn.setOnClickListener {
+            findNavController().navigate(R.id.action_onboard_to_signIn)
         }
-
-        view.findViewById<Button>(R.id.btnSignUp).setOnClickListener {
-            (activity as MainActivity).navigateToSignUpFromOnboard()
+        binding.btnSignUp.setOnClickListener {
+            findNavController().navigate(R.id.action_onboard_to_signUp)
         }
+    }
 
-        return view
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

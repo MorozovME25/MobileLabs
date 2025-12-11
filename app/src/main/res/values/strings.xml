@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Lab1</string>
+    <string name="app_name">Game of Thrones</string>
     <string name="app_logo_desc">App Logo</string>
     <string name="onboard_description">Современное приложение для общения и управления задачами. Простой интерфейс, мощные функции.</string>
     <string name="feature1">Быстрый чат</string>
@@ -10,4 +10,37 @@
     <string name="feature2_desc">Создавайте, отслеживайте и завершайте задачи легко.</string>
     <string name="sign_in">Войти</string>
     <string name="sign_up">Зарегистрироваться</string>
+    <string name="loading_characters">Загрузка персонажей…</string>
+    <string name="error_loading">Ошибка загрузки данных</string>
+    <string name="retry">Повторить</string>
+    <string name="no_internet">Нет подключения к интернету</string>
+
+    <string name="settings">Настройки</string>
+    <string name="profile">Профиль пользователя</string>
+    <string name="username">Имя пользователя</string>
+    <string name="change_password">Изменить пароль</string>
+    <string name="notifications">Уведомления</string>
+    <string name="enable_notifications">Включить уведомления</string>
+    <string name="theme">Тема оформления</string>
+    <string name="dark_theme">Темная тема</string>
+    <string name="font_size">Размер шрифта</string>
+    <string name="small">Маленький (12pt)</string>
+    <string name="medium">Средний (16pt)</string>
+    <string name="large">Большой (20pt)</string>
+    <string name="backup">Резервная копия данных</string>
+    <string name="backup_filename">Имя файла резервной копии</string>
+    <string name="create_backup">Создать резервную копию</string>
+    <string name="delete_backup">Удалить</string>
+    <string name="restore_backup">Восстановить</string>
+    <string name="save_settings">Сохранить настройки</string>
+    <string name="app_settings">Открыть настройки приложения</string>
+    <string name="no_backup">Нет резервной копии</string>
+    <string name="no_restore_backup">Нет резервной копии для восстановления</string>
+    <string name="old_password">Старый пароль</string>
+    <string name="new_password">Новый пароль</string>
+    <string name="confirm_password">Подтвердите пароль</string>
+    <string name="backup_created">Резервная копия создана успешно!</string>
+    <string name="backup_deleted">Резервная копия удалена</string>
+    <string name="backup_restored">Резервная копия восстановлена</string>
+    <string name="settings_saved">Настройки сохранены</string>
 </resources>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/onboardFragment">
+
+    <fragment
+        android:id="@+id/onboardFragment"
+        android:name="com.example.lab1.Fragments.OnboardFragment"
+        android:label="OnboardFragment">
+        <action
+            android:id="@+id/action_onboard_to_signIn"
+            app:destination="@id/signInFragment" />
+        <action
+            android:id="@+id/action_onboard_to_signUp"
+            app:destination="@id/signUpFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/signInFragment"
+        android:name="com.example.lab1.Fragments.SignInFragment"
+        android:label="SignInFragment">
+        <argument
+            android:name="user"
+            app:argType="com.example.lab1.Extentions.User"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_signIn_to_signUp"
+            app:destination="@id/signUpFragment" />
+        <action
+            android:id="@+id/action_signIn_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/onboardFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.example.lab1.Fragments.SignUpFragment"
+        android:label="SignUpFragment">
+        <action
+            android:id="@+id/action_signUp_to_signIn"
+            app:destination="@id/signInFragment"
+            app:popUpTo="@id/onboardFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.lab1.Fragments.HomeFragment"
+        android:label="HomeFragment">
+        <action
+            android:id="@+id/action_home_to_settings"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.lab1.Fragments.SettingsFragment"
+        android:label="SettingsFragment" />
+</navigation>
