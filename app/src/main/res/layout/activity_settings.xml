@@ -9,7 +9,7 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize">
+        android:layout_height="wrap_content">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
@@ -60,7 +60,8 @@
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Имя пользователя">
+                        android:hint="Имя пользователя"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_username"
@@ -233,7 +234,8 @@
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Имя файла резервной копии">
+                        android:hint="Имя файла резервной копии"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_backup_filename"
@@ -243,15 +245,6 @@
 
                     </com.google.android.material.textfield.TextInputLayout>
 
-<!--                    <Button-->
-<!--                        android:id="@+id/btn_create_backup"-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:layout_marginTop="12dp"-->
-<!--                        android:text="Создать резервную копию"-->
-<!--                        android:textSize="14sp"-->
-<!--                        android:backgroundTint="@color/md_theme_primary"-->
-<!--                        android:textColor="@color/md_theme_onPrimary" />-->
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -287,7 +280,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:text="Нет резервной копии"
+                        android:text="Нет резервной копии во внешнем хранилище"
                         android:textSize="14sp"
                         android:textColor="@color/md_theme_onSurfaceVariant" />
 
@@ -299,6 +292,71 @@
                         android:text="Нет резервной копии для восстановления"
                         android:textSize="14sp"
                         android:textColor="@color/md_theme_onSurfaceVariant" />
+
+                    <Button
+                        android:id="@+id/btn_copy_path"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Копировать путь к файлу"
+                        android:textSize="14sp"
+                        style="?attr/materialButtonOutlinedStyle"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tv_debug_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textSize="12sp"
+                        android:textColor="@color/md_theme_error"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- База данных -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Локальная база данных"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/md_theme_primary"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:id="@+id/tv_database_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Статус базы данных: Неизвестно"
+                        android:textSize="14sp"
+                        android:textColor="@color/md_theme_onSurfaceVariant"
+                        android:layout_marginBottom="12dp" />
+
+                    <Button
+                        android:id="@+id/btn_clear_database"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Очистить базу данных"
+                        android:textSize="14sp"
+                        android:backgroundTint="@color/md_theme_error"
+                        android:textColor="@color/md_theme_onErrorContainer"
+                        android:visibility="gone" />
 
                 </LinearLayout>
 
@@ -329,3 +387,334 @@
     </androidx.core.widget.NestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<androidx.coordinatorlayout.widget.CoordinatorLayout-->
+<!--    xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--    xmlns:tools="http://schemas.android.com/tools"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent"-->
+<!--    tools:context=".Fragments.SettingsFragment">-->
+
+<!--    <com.google.android.material.appbar.AppBarLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="?attr/actionBarSize">-->
+
+<!--        <com.google.android.material.appbar.MaterialToolbar-->
+<!--            android:id="@+id/toolbar"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="?attr/actionBarSize"-->
+<!--            android:background="@color/md_theme_primary"-->
+<!--            app:title="Настройки"-->
+<!--            app:titleTextColor="@color/md_theme_onPrimary"-->
+<!--            app:navigationIcon="@drawable/ic_arrow_back" />-->
+
+<!--    </com.google.android.material.appbar.AppBarLayout>-->
+
+<!--    <androidx.core.widget.NestedScrollView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:padding="16dp"-->
+<!--        app:layout_behavior="@string/appbar_scrolling_view_behavior">-->
+
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="vertical"-->
+<!--            android:layout_marginTop="16dp">-->
+
+<!--            &lt;!&ndash; Профиль пользователя &ndash;&gt;-->
+<!--            <com.google.android.material.card.MaterialCardView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginBottom="16dp"-->
+<!--                app:cardCornerRadius="12dp"-->
+<!--                app:cardElevation="2dp">-->
+
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="vertical"-->
+<!--                    android:padding="16dp">-->
+
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="Профиль пользователя"-->
+<!--                        android:textStyle="bold"-->
+<!--                        android:textSize="16sp"-->
+<!--                        android:textColor="@color/md_theme_primary"-->
+<!--                        android:layout_marginBottom="12dp" />-->
+
+<!--                    <com.google.android.material.textfield.TextInputLayout-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:hint="Имя пользователя">-->
+
+<!--                        <com.google.android.material.textfield.TextInputEditText-->
+<!--                            android:id="@+id/et_username"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:inputType="textPersonName" />-->
+
+<!--                    </com.google.android.material.textfield.TextInputLayout>-->
+
+<!--                    <Button-->
+<!--                        android:id="@+id/btn_change_password"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginTop="12dp"-->
+<!--                        android:text="Изменить пароль"-->
+<!--                        android:textSize="14sp"-->
+<!--                        style="?attr/materialButtonOutlinedStyle" />-->
+
+<!--                </LinearLayout>-->
+
+<!--            </com.google.android.material.card.MaterialCardView>-->
+
+<!--            &lt;!&ndash; Уведомления &ndash;&gt;-->
+<!--            <com.google.android.material.card.MaterialCardView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginBottom="16dp"-->
+<!--                app:cardCornerRadius="12dp"-->
+<!--                app:cardElevation="2dp">-->
+
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="vertical"-->
+<!--                    android:padding="16dp">-->
+
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="Уведомления"-->
+<!--                        android:textStyle="bold"-->
+<!--                        android:textSize="16sp"-->
+<!--                        android:textColor="@color/md_theme_primary"-->
+<!--                        android:layout_marginBottom="12dp" />-->
+
+<!--                    <com.google.android.material.switchmaterial.SwitchMaterial-->
+<!--                        android:id="@+id/switch_notifications"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="Включить уведомления"-->
+<!--                        android:textSize="16sp" />-->
+
+<!--                </LinearLayout>-->
+
+<!--            </com.google.android.material.card.MaterialCardView>-->
+
+<!--            &lt;!&ndash; Тема оформления &ndash;&gt;-->
+<!--            <com.google.android.material.card.MaterialCardView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginBottom="16dp"-->
+<!--                app:cardCornerRadius="12dp"-->
+<!--                app:cardElevation="2dp">-->
+
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="vertical"-->
+<!--                    android:padding="16dp">-->
+
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="Тема оформления"-->
+<!--                        android:textStyle="bold"-->
+<!--                        android:textSize="16sp"-->
+<!--                        android:textColor="@color/md_theme_primary"-->
+<!--                        android:layout_marginBottom="12dp" />-->
+
+<!--                    <com.google.android.material.switchmaterial.SwitchMaterial-->
+<!--                        android:id="@+id/switch_dark_theme"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="Темная тема"-->
+<!--                        android:textSize="16sp" />-->
+
+<!--                </LinearLayout>-->
+
+<!--            </com.google.android.material.card.MaterialCardView>-->
+
+<!--            &lt;!&ndash; Размер шрифта &ndash;&gt;-->
+<!--            <com.google.android.material.card.MaterialCardView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginBottom="16dp"-->
+<!--                app:cardCornerRadius="12dp"-->
+<!--                app:cardElevation="2dp">-->
+
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="vertical"-->
+<!--                    android:padding="16dp">-->
+
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="Размер шрифта"-->
+<!--                        android:textStyle="bold"-->
+<!--                        android:textSize="16sp"-->
+<!--                        android:textColor="@color/md_theme_primary"-->
+<!--                        android:layout_marginBottom="12dp" />-->
+
+<!--                    <RadioGroup-->
+<!--                        android:id="@+id/radio_group_font_size"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content">-->
+
+<!--                        <RadioButton-->
+<!--                            android:id="@+id/rb_small"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="Маленький (12pt)"-->
+<!--                            android:textSize="16sp" />-->
+
+<!--                        <RadioButton-->
+<!--                            android:id="@+id/rb_medium"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="Средний (16pt)"-->
+<!--                            android:textSize="16sp"-->
+<!--                            android:checked="true" />-->
+
+<!--                        <RadioButton-->
+<!--                            android:id="@+id/rb_large"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="Большой (20pt)"-->
+<!--                            android:textSize="16sp" />-->
+
+<!--                    </RadioGroup>-->
+
+<!--                </LinearLayout>-->
+
+<!--            </com.google.android.material.card.MaterialCardView>-->
+
+<!--            &lt;!&ndash; Резервная копия &ndash;&gt;-->
+<!--            <com.google.android.material.card.MaterialCardView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginBottom="16dp"-->
+<!--                app:cardCornerRadius="12dp"-->
+<!--                app:cardElevation="2dp">-->
+
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="vertical"-->
+<!--                    android:padding="16dp">-->
+
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="Резервная копия данных"-->
+<!--                        android:textStyle="bold"-->
+<!--                        android:textSize="16sp"-->
+<!--                        android:textColor="@color/md_theme_primary"-->
+<!--                        android:layout_marginBottom="12dp" />-->
+
+<!--                    <com.google.android.material.textfield.TextInputLayout-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:hint="Имя файла резервной копии">-->
+
+<!--                        <com.google.android.material.textfield.TextInputEditText-->
+<!--                            android:id="@+id/et_backup_filename"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:inputType="text" />-->
+
+<!--                    </com.google.android.material.textfield.TextInputLayout>-->
+
+<!--&lt;!&ndash;                    <Button&ndash;&gt;-->
+<!--&lt;!&ndash;                        android:id="@+id/btn_create_backup"&ndash;&gt;-->
+<!--&lt;!&ndash;                        android:layout_width="match_parent"&ndash;&gt;-->
+<!--&lt;!&ndash;                        android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                        android:layout_marginTop="12dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                        android:text="Создать резервную копию"&ndash;&gt;-->
+<!--&lt;!&ndash;                        android:textSize="14sp"&ndash;&gt;-->
+<!--&lt;!&ndash;                        android:backgroundTint="@color/md_theme_primary"&ndash;&gt;-->
+<!--&lt;!&ndash;                        android:textColor="@color/md_theme_onPrimary" />&ndash;&gt;-->
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:orientation="horizontal"-->
+<!--                        android:layout_marginTop="8dp">-->
+
+<!--                        <Button-->
+<!--                            android:id="@+id/btn_delete_backup"-->
+<!--                            android:layout_width="0dp"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_weight="1"-->
+<!--                            android:layout_marginEnd="4dp"-->
+<!--                            android:text="Удалить"-->
+<!--                            android:textSize="14sp"-->
+<!--                            style="?attr/materialButtonOutlinedStyle" />-->
+
+<!--                        <Button-->
+<!--                            android:id="@+id/btn_restore_backup"-->
+<!--                            android:layout_width="0dp"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_weight="1"-->
+<!--                            android:layout_marginStart="4dp"-->
+<!--                            android:text="Восстановить"-->
+<!--                            android:textSize="14sp"-->
+<!--                            android:backgroundTint="@color/md_theme_primary"-->
+<!--                            android:textColor="@color/md_theme_onPrimary" />-->
+
+<!--                    </LinearLayout>-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/tv_backup_status"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginTop="12dp"-->
+<!--                        android:text="Нет резервной копии"-->
+<!--                        android:textSize="14sp"-->
+<!--                        android:textColor="@color/md_theme_onSurfaceVariant" />-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/tv_restore_status"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginTop="8dp"-->
+<!--                        android:text="Нет резервной копии для восстановления"-->
+<!--                        android:textSize="14sp"-->
+<!--                        android:textColor="@color/md_theme_onSurfaceVariant" />-->
+
+<!--                </LinearLayout>-->
+
+<!--            </com.google.android.material.card.MaterialCardView>-->
+
+<!--            &lt;!&ndash; Кнопки управления &ndash;&gt;-->
+<!--            <Button-->
+<!--                android:id="@+id/btn_save_settings"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="8dp"-->
+<!--                android:text="Сохранить настройки"-->
+<!--                android:textSize="16sp"-->
+<!--                android:backgroundTint="@color/md_theme_primary"-->
+<!--                android:textColor="@color/md_theme_onPrimary" />-->
+
+<!--            <Button-->
+<!--                android:id="@+id/btn_settings"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="8dp"-->
+<!--                android:text="Открыть настройки приложения"-->
+<!--                android:textSize="14sp"-->
+<!--                style="?attr/materialButtonOutlinedStyle" />-->
+
+<!--        </LinearLayout>-->
+
+<!--    </androidx.core.widget.NestedScrollView>-->
+
+<!--</androidx.coordinatorlayout.widget.CoordinatorLayout>-->

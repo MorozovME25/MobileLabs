@@ -1,122 +1,186 @@
 package com.example.lab1.network
 
 import com.example.lab1.Extentions.Character
+import com.example.lab1.database.AppDatabase
+import com.example.lab1.database.CharacterDao
+import com.example.lab1.database.LastIdEntity
+import com.example.lab1.database.toDomain
+import com.example.lab1.database.toEntity
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.sync.Semaphore
-import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import timber.log.Timber
 
-class CharacterRepository(private val apiService: GoTApiService) {
+class CharacterRepository(
+    private val apiService: GoTApiService,
+    private val characterDao: CharacterDao
+) {
 
-    private val characterCache = mutableMapOf<Int, Character>()
+    suspend fun initializeData(): List<Character> {
+        return withContext(Dispatchers.IO) {
+            // Проверяем, есть ли уже данные в базе
+            if (characterDao.hasAnyCharacters()) {
+                Timber.d("Данные уже есть в базе, пропускаем инициализацию")
+                return@withContext characterDao.getAllCharactersSync().map { it.toDomain() }
+            }
 
-    // Ограничение количества одновременных запросов (защита от перегрузки)
-    private val requestSemaphore = Semaphore(10) // Максимум 10 одновременных запросов
+            Timber.d("Инициализация данных - загрузка первых $INITIAL_LOAD_COUNT персонажей")
 
-    // Таймаут для одного запроса
+            // Загружаем первые 50 персонажей
+            val characters = getCharactersInRange(1, INITIAL_LOAD_COUNT)
 
-    /**
-     * Оптимизированный метод загрузки персонажей в диапазоне
-     * Загружает персонажей параллельно с ограничением количества одновременных запросов
-     */
-    suspend fun getCharactersInRange(startId: Int, endId: Int): List<Character> = withContext(Dispatchers.IO) {
-        val startTime = System.currentTimeMillis()
-        Timber.d("Начало загрузки персонажей в диапазоне $startId-$endId")
+            // Сохраняем в базу данных
+            saveCharactersToDatabase(characters)
 
-        // Фильтруем уже загруженные из кэша
-        val idsToLoad = (startId..endId).filter { it !in characterCache }
-        val cachedCharacters = (startId..endId).filter { it in characterCache }.map { characterCache[it]!! }
-
-        Timber.d("Кэш содержит ${cachedCharacters.size} персонажей, нужно загрузить ${idsToLoad.size}")
-
-        if (idsToLoad.isEmpty()) {
-            Timber.d("Все персонажи найдены в кэше")
-            return@withContext cachedCharacters
+            characters
         }
-
-        // Параллельная загрузка с ограничением
-        val loadedCharacters = coroutineScope {
-            idsToLoad.map { characterId ->
-                async {
-                    loadCharacterWithRetry(characterId)
-                }
-            }.awaitAll().filterNotNull()
-        }
-
-        // Сохраняем в кэш
-        loadedCharacters.forEach { character ->
-            characterCache[character.id] = character
-        }
-
-        val totalTime = System.currentTimeMillis() - startTime
-        Timber.d("Загрузка завершена за $totalTime мс. Загружено: ${loadedCharacters.size}, из кэша: ${cachedCharacters.size}")
-
-        (cachedCharacters + loadedCharacters).sortedBy { it.id }
     }
 
-    /**
-     * Загрузка одного персонажа с ретраями и таймаутом
-     */
-    private suspend fun loadCharacterWithRetry(characterId: Int, maxRetries: Int = 3): Character? {
-        var attempt = 0
+    suspend fun getCharactersForDisplay(limit: Int, offset: Int): List<Character> {
+        return try {
+            val characters = characterDao.getCharactersWithPaging(limit, offset).map { it.toDomain() }
+            if (characters.isEmpty()) {
+                Timber.w("Получен пустой список персонажей для limit=$limit, offset=$offset")
+            }
+            characters
+        } catch (e: Exception) {
+            Timber.e(e, "Ошибка получения персонажей из базы данных")
+            emptyList() // Возвращаем пустой список вместо падения
+        }
+    }
 
-        while (attempt < maxRetries) {
-            attempt++
+    suspend fun loadMoreCharacters(startId: Int, count: Int): List<Character> {
+        return withContext(Dispatchers.IO) {
             try {
-                // Запрашиваем разрешение на выполнение запроса
-                return requestSemaphore.withPermit {
-                    Timber.d("Запрос персонажа $characterId (попытка $attempt/$maxRetries)")
-                    withTimeout(REQUEST_TIMEOUT_MS) {
-                        val character = apiService.getCharacter(characterId)
+                Timber.d("Загрузка дополнительных персонажей с ID $startId, количество: $count")
+                val characters = getCharactersInRange(startId, startId + count - 1)
 
-                        // ИСПРАВЛЕНО: добавляем ID для сортировки
-                        val characterWithId = character.copy(id = characterId)
+                if (characters.isEmpty()) {
+                    Timber.w("API вернул пустой список для диапазона $startId-${startId + count - 1}")
+                    return@withContext emptyList()
+                }
 
-                        // Проверяем валидность данных
-                        if (characterWithId.name.isNotEmpty()) {
-                            characterWithId
-                        } else {
-                            null
-                        }
+                // Сохраняем новых персонажей в базу
+                var savedCount = 0
+                characters.forEach { character ->
+                    try {
+                        characterDao.insertCharacter(character.toEntity(1))
+                        savedCount++
+                    } catch (e: Exception) {
+                        Timber.e(e, "Ошибка сохранения персонажа с ID ${character.id}")
                     }
                 }
+
+                Timber.d("Сохранено в БД: $savedCount из ${characters.size} персонажей")
+
+                // Возвращаем только успешно сохраненные персонажи
+                characters.take(savedCount)
             } catch (e: Exception) {
-                Timber.e(e, "Ошибка загрузки персонажа $characterId на попытке $attempt")
-
-                // Если это последняя попытка - пробрасываем ошибку или возвращаем null
-                if (attempt == maxRetries) {
-                    return null
-                }
-
-                // Задержка перед повторной попыткой (экспоненциальная)
-                delay(30L * attempt)
+                Timber.e(e, "Критическая ошибка загрузки дополнительных персонажей")
+                emptyList()
             }
         }
-        return null
     }
 
     /**
-     * Очистка кэша при необходимости
+     * Получение последнего ID персонажа в базе
      */
-    fun clearCache() {
-        characterCache.clear()
-        Timber.d("Кэш персонажей очищен")
+    suspend fun getLastCharacterId(): Int {
+        return characterDao.getLastCharacterId()
+    }
+
+    suspend fun getCharactersInRange(startId: Int, endId: Int): List<Character> = withContext(Dispatchers.IO) {
+        val characters = mutableListOf<Character>()
+        var successfulCount = 0
+        var failedCount = 0
+
+        for (id in startId..endId) {
+            try {
+                val character = apiService.getCharacter(id)
+                if (character.name.isNotEmpty()) {
+                    characters.add(character)
+                    successfulCount++
+                } else {
+                    Timber.w("Пустое имя для персонажа с ID $id")
+                    failedCount++
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Ошибка загрузки персонажа $id")
+                failedCount++
+                continue
+            }
+        }
+
+        Timber.d("Загружено: $successfulCount персонажей, ошибок: $failedCount")
+        return@withContext characters
+    }
+
+    private suspend fun saveCharactersToDatabase(characters: List<Character>) {
+        try {
+            val entities = characters.map { character ->
+                character.toEntity(1) // rangeId = 1
+            }
+            characterDao.insertAll(entities)
+            Timber.d("Сохранено ${entities.size} персонажей в базу данных")
+        } catch (e: Exception) {
+            Timber.e(e, "Ошибка сохранения персонажей в базу данных")
+        }
+    }
+
+    suspend fun saveCharacterToDatabase(character: Character) {
+        try {
+            characterDao.insertCharacter(character.toEntity(1))
+            Timber.d("Сохранен персонаж с ID ${character.id}")
+        } catch (e: Exception) {
+            Timber.e(e, "Ошибка сохранения персонажа с ID ${character.id}")
+        }
+    }
+
+    suspend fun refreshAllData(): List<Character> {
+        return withContext(Dispatchers.IO) {
+            try {
+                // Очищаем базу
+                characterDao.clearAll()
+
+                // Загружаем первые 50 персонажей
+                val characters = getCharactersInRange(1, 50)
+
+                // Сохраняем в базу
+                saveCharactersToDatabase(characters)
+
+                // Обновляем последний ID
+                val lastId = characters.maxByOrNull { it.id }?.id ?: 50
+                characterDao.insertLastId(LastIdEntity(lastId = lastId))
+
+                Timber.d("База данных обновлена. Сохранено: ${characters.size} персонажей")
+                characters
+            } catch (e: Exception) {
+                Timber.e(e, "Ошибка обновления базы данных")
+                emptyList()
+            }
+        }
+    }
+
+    suspend fun getTotalCharactersCount(): Int {
+        return characterDao.countAllCharacters()
+    }
+
+    suspend fun hasDataInDatabase(): Boolean {
+        return characterDao.hasAnyCharacters()
     }
 
     companion object {
-        private const val REQUEST_TIMEOUT_MS = 5000L
+
+        private const val INITIAL_LOAD_COUNT = 50
+
         @Volatile
         private var instance: CharacterRepository? = null
 
-        fun getInstance(): CharacterRepository {
+        fun getInstance(context: android.content.Context): CharacterRepository {
             return instance ?: synchronized(this) {
-                instance ?: CharacterRepository(GoTApiService.create()).also { instance = it }
+                instance ?: CharacterRepository(
+                    GoTApiService.create(),
+                    AppDatabase.getDatabase(context).characterDao()
+                ).also { instance = it }
             }
         }
     }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Game of Thrones</string>
+    <string name="app_name">Игра престолов</string>
     <string name="app_logo_desc">App Logo</string>
     <string name="onboard_description">Современное приложение для общения и управления задачами. Простой интерфейс, мощные функции.</string>
     <string name="feature1">Быстрый чат</string>
@@ -10,11 +10,14 @@
     <string name="feature2_desc">Создавайте, отслеживайте и завершайте задачи легко.</string>
     <string name="sign_in">Войти</string>
     <string name="sign_up">Зарегистрироваться</string>
+
+    <!-- Network strings -->
     <string name="loading_characters">Загрузка персонажей…</string>
     <string name="error_loading">Ошибка загрузки данных</string>
     <string name="retry">Повторить</string>
     <string name="no_internet">Нет подключения к интернету</string>
 
+    <!-- Settings strings -->
     <string name="settings">Настройки</string>
     <string name="profile">Профиль пользователя</string>
     <string name="username">Имя пользователя</string>
@@ -23,6 +26,7 @@
     <string name="enable_notifications">Включить уведомления</string>
     <string name="theme">Тема оформления</string>
     <string name="dark_theme">Темная тема</string>
+    <string name="light_theme">Светлая тема</string>
     <string name="font_size">Размер шрифта</string>
     <string name="small">Маленький (12pt)</string>
     <string name="medium">Средний (16pt)</string>
@@ -43,4 +47,28 @@
     <string name="backup_deleted">Резервная копия удалена</string>
     <string name="backup_restored">Резервная копия восстановлена</string>
     <string name="settings_saved">Настройки сохранены</string>
+    <string name="database">Локальная база данных</string>
+    <string name="database_status_empty">База данных пустая</string>
+    <string name="database_status_loaded">Данные загружены из базы данных</string>
+    <string name="database_status_api">Данные загружены из API</string>
+    <string name="clear_database">Очистить базу данных</string>
+    <string name="confirm_clear_database">Вы уверены, что хотите очистить базу данных? Все сохраненные данные будут удалены.</string>
+    <string name="range">Диапазон персонажей</string>
+    <string name="range_1">1-50 (Студент №1)</string>
+    <string name="range_2">51-100 (Студент №2)</string>
+    <string name="range_3">101-150 (Студент №3)</string>
+    <string name="range_4">151-200 (Студент №4)</string>
+    <string name="range_5">201-250 (Студент №5)</string>
+    <string name="range_6">251-300 (Студент №6)</string>
+    <string name="change_range">Сменить диапазон</string>
+    <string name="refresh_data">Обновить данные</string>
+    <string name="file_path_copied">Путь к файлу скопирован в буфер обмена</string>
+    <string name="permission_denied">Разрешение отклонено. Некоторые функции могут быть недоступны.</string>
+    <string name="storage_permission_required">Для создания резервных копий требуется доступ к файлам</string>
+
+    <!-- Error messages -->
+    <string name="error_file_not_found">Файл не найден</string>
+    <string name="error_file_access">Ошибка доступа к файлу</string>
+    <string name="error_database">Ошибка базы данных</string>
+    <string name="error_network">Ошибка сети</string>
 </resources>

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.navigation.safeargs.kotlin)
     id("org.jetbrains.kotlin.plugin.serialization") version "2.0.21"
+    id("com.google.devtools.ksp") version "2.0.21-1.0.26"
 }
 
 android {
@@ -71,7 +72,18 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    implementation("androidx.room:room-paging:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
+
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.documentfile:documentfile:1.0.1")
+}
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+    arg("room.incremental", "true")
+    arg("room.expandProjection", "true")
 }

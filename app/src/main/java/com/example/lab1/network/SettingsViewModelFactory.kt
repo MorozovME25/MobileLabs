@@ -6,16 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
 @Suppress("UNCHECKED_CAST")
-class ViewModelFactory(
-    private val characterRepository: CharacterRepository,
+class SettingsViewModelFactory(
     private val dataStore: DataStore<Preferences>
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
-            modelClass.isAssignableFrom(HomeViewModel::class.java) -> {
-                HomeViewModel(characterRepository) as T
-            }
             modelClass.isAssignableFrom(SettingsViewModel::class.java) -> {
                 SettingsViewModel(dataStore) as T
             }

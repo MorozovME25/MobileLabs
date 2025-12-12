@@ -25,6 +25,11 @@ data class Character(
 
     @Json(name = "url")
     val url: String? = null,
-
-    val id: Int = 0
-)
+    )
+{
+    // Вычисляемый ID из URL
+    val id: Int
+        get() = url?.let { url ->
+            url.split("/").lastOrNull()?.toIntOrNull() ?: 0
+        } ?: 0
+}

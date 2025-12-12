@@ -16,7 +16,7 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="wrap_content"
             android:background="@color/md_theme_primary"
             app:title="Персонажи Игры Престолов"
             app:titleTextColor="@color/md_theme_onPrimary"
@@ -31,7 +31,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:padding="8dp"
-                android:clipToPadding="false" />
+                android:clipToPadding="false"
+                tools:listitem="@layout/item_character" />
 
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -54,27 +55,3 @@
 
     </LinearLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-<!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
-<!--    xmlns:tools="http://schemas.android.com/tools"-->
-<!--    android:id="@+id/main"-->
-<!--    android:layout_width="match_parent"-->
-<!--    android:layout_height="match_parent"-->
-<!--    android:orientation="vertical"-->
-<!--    tools:context=".Fragments.HomeFragment">-->
-
-<!--    <com.google.android.material.appbar.MaterialToolbar-->
-<!--        android:id="@+id/toolbar"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="?attr/actionBarSize"-->
-<!--        android:background="@color/md_theme_primary"-->
-<!--        app:title="Чаты"-->
-<!--        app:titleTextColor="@color/md_theme_onPrimary" />-->
-
-<!--    <androidx.recyclerview.widget.RecyclerView-->
-<!--        android:id="@+id/recycle"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:padding="8dp" />-->
-
-<!--</LinearLayout>-->

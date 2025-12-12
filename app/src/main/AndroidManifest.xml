@@ -22,6 +22,7 @@
         android:theme="@style/Theme.Lab1"
         android:requestLegacyExternalStorage="true"
         android:preserveLegacyExternalStorage="true"
+        android:usesCleartextTraffic="true"
         tools:ignore="UnusedAttribute">
         <activity
             android:name=".MainActivity"

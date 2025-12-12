@@ -13,13 +13,15 @@ interface GoTApiService {
     suspend fun getCharacter(@Path("id") id: Int): Character
 
     companion object {
+        private const val BASE_URL = "https://www.anapioficeandfire.com/api/"
+
         fun create(): GoTApiService {
             val moshi = Moshi.Builder()
                 .add(KotlinJsonAdapterFactory())
                 .build()
 
             return Retrofit.Builder()
-                .baseUrl("https://www.anapioficeandfire.com/api/")
+                .baseUrl(BASE_URL)
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .build()
                 .create(GoTApiService::class.java)
