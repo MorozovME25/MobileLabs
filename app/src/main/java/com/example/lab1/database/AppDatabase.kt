@@ -23,7 +23,7 @@ abstract class AppDatabase : RoomDatabase() {
         private val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("CREATE TABLE IF NOT EXISTS last_id (id INTEGER PRIMARY KEY NOT NULL, last_id INTEGER NOT NULL)")
-                database.execSQL("INSERT OR REPLACE INTO last_id (id, last_id) VALUES (1, 20)")
+                database.execSQL("INSERT OR REPLACE INTO last_id (id, last_id) VALUES (1, 50)")
             }
         }
 
@@ -34,7 +34,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "got_database"
                 )
-                    .addMigrations(MIGRATION_1_2) // Добавляем миграцию
+                    .addMigrations(MIGRATION_1_2)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance

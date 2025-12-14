@@ -4,18 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.lab1.Extentions.BaseFragment
 import com.example.lab1.Extentions.TempAuthData
 import com.example.lab1.Extentions.UserRepository
-import com.example.lab1.MainActivity
 import com.example.lab1.R
 import com.example.lab1.databinding.ActivitySigninBinding
-import com.google.android.material.textfield.TextInputEditText
 
 class SignInFragment : BaseFragment() {
 

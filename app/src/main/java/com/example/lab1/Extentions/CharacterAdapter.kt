@@ -53,9 +53,14 @@ class CharacterAdapter(
         }
     }
 
+//    override fun getItemCount(): Int {
+//        // Всегда показываем footer, если есть данные или идет загрузка
+//        return characters.size + 1
+//    }
+
     override fun getItemCount(): Int {
-        // Всегда показываем footer, если есть данные или идет загрузка
-        return characters.size + 1
+        // Всегда показываем футер, если есть данные или можно загрузить больше
+        return characters.size + if (characters.isNotEmpty() || hasMoreData || isLoadingMore) 1 else 0
     }
 
     inner class CharacterViewHolder(private val binding: ItemCharacterBinding) :
@@ -118,6 +123,7 @@ class CharacterAdapter(
 
     // Обновить все данные
     fun updateData(newCharacters: List<Character>) {
+        if (newCharacters == characters) return
         characters = newCharacters
         notifyDataSetChanged()
         Timber.d("Данные полностью обновлены в адаптере, размер: ${characters.size}")

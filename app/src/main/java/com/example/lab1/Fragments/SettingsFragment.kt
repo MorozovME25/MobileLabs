@@ -3,9 +3,9 @@ package com.example.lab1.Fragments
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.provider.Settings
 import android.os.Bundle
 import android.os.Environment
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,7 +24,6 @@ import com.example.lab1.R
 import com.example.lab1.databinding.ActivitySettingsBinding
 import com.example.lab1.network.SettingsViewModel
 import com.example.lab1.network.SettingsViewModelFactory
-import com.example.lab1.network.ViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch

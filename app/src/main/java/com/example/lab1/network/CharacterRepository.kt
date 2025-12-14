@@ -191,6 +191,24 @@ class CharacterRepository(
         }
     }
 
+    suspend fun loadCharactersFromApi(startId: Int, count: Int): List<Character> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val characters = getCharactersInRange(startId, startId + count - 1)
+
+                characters.forEach { character ->
+                    characterDao.insertCharacter(character.toEntity(1))
+                }
+
+                Timber.d("Успешно загружено и сохранено ${characters.size} персонажей из API")
+                characters
+            } catch (e: Exception) {
+                Timber.e(e, "Ошибка загрузки персонажей из API")
+                emptyList()
+            }
+        }
+    }
+
     suspend fun getTotalCharactersCount(): Int {
         return characterDao.countAllCharacters()
     }
@@ -199,13 +217,16 @@ class CharacterRepository(
         return characterDao.hasAnyCharacters()
     }
 
+    fun getTotalCountFlow(): Flow<Int> {
+        return characterDao.countAllCharactersFlow()
+    }
 
     /**
      * Получить общее количество персонажей как Flow
      */
-    fun countAllCharactersFlow(): Flow<Int> {
-        return characterDao.countAllCharactersFlow()
-    }
+//    fun countAllCharactersFlow(): Flow<Int> {
+//        return characterDao.countAllCharactersFlow()
+//    }
 
     fun getAllCharactersFlow(): Flow<List<Character>> {
         return characterDao.getAllCharactersFlow()
@@ -214,7 +235,7 @@ class CharacterRepository(
 
     companion object {
 
-        private const val INITIAL_LOAD_COUNT = 20
+        private const val INITIAL_LOAD_COUNT = 50
 
         @Volatile
         private var instance: CharacterRepository? = null
