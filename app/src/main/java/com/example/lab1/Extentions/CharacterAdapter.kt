@@ -1,12 +1,8 @@
 package com.example.lab1.Extentions
 
-import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lab1.databinding.ItemCharacterBinding
 import com.example.lab1.databinding.ItemFooterBinding
@@ -59,7 +55,7 @@ class CharacterAdapter(
 
     override fun getItemCount(): Int {
         // Всегда показываем footer, если есть данные или идет загрузка
-        return characters.size + if (characters.isNotEmpty() || isLoadingMore || hasMoreData) 1 else 0
+        return characters.size + 1
     }
 
     inner class CharacterViewHolder(private val binding: ItemCharacterBinding) :
@@ -124,7 +120,12 @@ class CharacterAdapter(
     fun updateData(newCharacters: List<Character>) {
         characters = newCharacters
         notifyDataSetChanged()
+        Timber.d("Данные полностью обновлены в адаптере, размер: ${characters.size}")
     }
+//    fun updateData(newCharacters: List<Character>) {
+//        characters = newCharacters
+//        notifyDataSetChanged()
+//    }
 
     // Добавить новые элементы в конец списка
     fun addItems(newCharacters: List<Character>) {
@@ -142,6 +143,7 @@ class CharacterAdapter(
         isLoadingMore = isLoading
         hasMoreData = hasMore
 
+        // Обновляем только футер
         notifyItemChanged(characters.size)
     }
 

@@ -7,6 +7,8 @@ import com.example.lab1.database.LastIdEntity
 import com.example.lab1.database.toDomain
 import com.example.lab1.database.toEntity
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
@@ -81,6 +83,35 @@ class CharacterRepository(
         }
     }
 
+    suspend fun loadAdditionalCharacters(startId: Int, count: Int): List<Character> {
+        return withContext(Dispatchers.IO) {
+            try {
+                Timber.d("Загрузка дополнительных персонажей с ID $startId, количество: $count")
+                val characters = getCharactersInRange(startId, startId + count - 1)
+
+                if (characters.isEmpty()) {
+                    Timber.w("API вернул пустой список для диапазона $startId-${startId + count - 1}")
+                    return@withContext emptyList()
+                }
+
+                // Сохраняем новых персонажей в базу
+                characters.forEach { character ->
+                    try {
+                        characterDao.insertCharacter(character.toEntity(1))
+                    } catch (e: Exception) {
+                        Timber.e(e, "Ошибка сохранения персонажа с ID ${character.id}")
+                    }
+                }
+
+                Timber.d("Успешно загружено и сохранено: ${characters.size} персонажей")
+                characters
+            } catch (e: Exception) {
+                Timber.e(e, "Критическая ошибка загрузки дополнительных персонажей")
+                emptyList()
+            }
+        }
+    }
+
     /**
      * Получение последнего ID персонажа в базе
      */
@@ -142,13 +173,13 @@ class CharacterRepository(
                 characterDao.clearAll()
 
                 // Загружаем первые 50 персонажей
-                val characters = getCharactersInRange(1, 50)
+                val characters = getCharactersInRange(1, INITIAL_LOAD_COUNT)
 
                 // Сохраняем в базу
                 saveCharactersToDatabase(characters)
 
                 // Обновляем последний ID
-                val lastId = characters.maxByOrNull { it.id }?.id ?: 50
+                val lastId = characters.maxByOrNull { it.id }?.id ?: INITIAL_LOAD_COUNT
                 characterDao.insertLastId(LastIdEntity(lastId = lastId))
 
                 Timber.d("База данных обновлена. Сохранено: ${characters.size} персонажей")
@@ -168,9 +199,22 @@ class CharacterRepository(
         return characterDao.hasAnyCharacters()
     }
 
+
+    /**
+     * Получить общее количество персонажей как Flow
+     */
+    fun countAllCharactersFlow(): Flow<Int> {
+        return characterDao.countAllCharactersFlow()
+    }
+
+    fun getAllCharactersFlow(): Flow<List<Character>> {
+        return characterDao.getAllCharactersFlow()
+            .map { entities -> entities.map { it.toDomain() } }
+    }
+
     companion object {
 
-        private const val INITIAL_LOAD_COUNT = 50
+        private const val INITIAL_LOAD_COUNT = 20
 
         @Volatile
         private var instance: CharacterRepository? = null

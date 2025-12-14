@@ -6,38 +6,44 @@ import com.example.lab1.Extentions.Character
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import kotlin.math.min
 
 class HomeViewModel(private val repository: CharacterRepository) : ViewModel() {
 
-    private val _characters = MutableStateFlow<List<Character>>(emptyList())
-    val characters: StateFlow<List<Character>> = _characters.asStateFlow()
-
     private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
     private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error.asStateFlow()
-
     private val _isInitialLoading = MutableStateFlow(true)
-    val isInitialLoading: StateFlow<Boolean> = _isInitialLoading.asStateFlow()
-
     private val _hasMoreData = MutableStateFlow(true)
+    private val _lastLoadedId = MutableStateFlow(20) // Начинаем с 50 (первоначальная загрузка)
+
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    val error: StateFlow<String?> = _error.asStateFlow()
+    val isInitialLoading: StateFlow<Boolean> = _isInitialLoading.asStateFlow()
     val hasMoreData: StateFlow<Boolean> = _hasMoreData.asStateFlow()
 
-    private var currentOffset = 0
-    private var totalCountInDb = 0 // Начальное количество
+    // Реактивный поток ВСЕХ персонажей
+    val characters: StateFlow<List<Character>> = repository.getAllCharactersFlow()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     private var maxApiLimit = 2000
+    private var totalCountInDb = 0
 
     init {
         loadInitialData()
+        monitorDataState()
     }
 
     private fun loadInitialData() {
@@ -47,15 +53,19 @@ class HomeViewModel(private val repository: CharacterRepository) : ViewModel() {
             _error.value = null
 
             try {
-                // Загружаем только первые 20 персонажей
-                loadCharacters(20, 0)
+                // Проверяем, есть ли уже данные в базе
+                val hasData = repository.hasDataInDatabase()
+                Timber.d("Проверка данных в базе: $hasData")
 
-                // Получаем общее количество в базе
+                if (!hasData) {
+                    Timber.d("Инициализация данных - загрузка первых 50 персонажей")
+                    repository.initializeData()
+                }
+
+                // Получаем общее количество персонажей в базе
                 totalCountInDb = repository.getTotalCharactersCount()
-                Timber.d("Всего персонажей в базе: $totalCountInDb")
-
-                // Обновляем состояние - кнопка должна быть видна, если есть данные в API
-                updateHasMoreDataState()
+                _lastLoadedId.value = totalCountInDb
+                Timber.d("Всего персонажей в базе после инициализации: $totalCountInDb")
 
             } catch (e: Exception) {
                 Timber.e(e, "Ошибка инициализации данных")
@@ -67,109 +77,62 @@ class HomeViewModel(private val repository: CharacterRepository) : ViewModel() {
         }
     }
 
-    // Загрузка следующей порции данных (всегда 10 персонажей)
+    private fun monitorDataState() {
+        viewModelScope.launch {
+            combine(
+                repository.countAllCharactersFlow(),
+                _lastLoadedId
+            ) { totalCount, lastLoadedId ->
+                totalCountInDb = totalCount
+                updateHasMoreDataState(totalCount, lastLoadedId)
+            }.collect()
+        }
+    }
+
+    private fun updateHasMoreDataState(totalCount: Int, lastLoadedId: Int) {
+        val hasMoreInApi = lastLoadedId < maxApiLimit
+        val hasMoreData = hasMoreInApi
+
+        _hasMoreData.value = hasMoreData
+        Timber.d("Состояние данных: totalCount=$totalCount, lastLoadedId=$lastLoadedId, hasMoreInApi=$hasMoreInApi, hasMoreData=$hasMoreData")
+    }
+
+    /**
+     * Загрузить следующую порцию персонажей из API (10 штук)
+     */
     fun loadMoreCharacters() {
-        if (_isLoading.value) return
+        if (_isLoading.value || !_hasMoreData.value) return
 
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
 
             try {
-                Timber.d("Начало загрузки следующей порции. Current offset: $currentOffset")
+                val currentLastId = _lastLoadedId.value
+                val nextStartId = currentLastId + 1
+                val countToLoad = 10 // Загружаем по 10 персонажей за раз
 
-                // Если есть данные в базе для отображения
-                if (currentOffset < totalCountInDb) {
-                    val newCharacters = repository.getCharactersForDisplay(10, currentOffset)
+                Timber.d("Загрузка дополнительных персонажей: startId=$nextStartId, count=$countToLoad")
 
-                    if (newCharacters.isNotEmpty()) {
-                        val updatedList = _characters.value.toMutableList()
-                        updatedList.addAll(newCharacters)
-                        _characters.value = updatedList
+                val newCharacters = repository.loadAdditionalCharacters(nextStartId, countToLoad)
 
-                        currentOffset += newCharacters.size
-                        Timber.d("Загружено из базы: ${newCharacters.size}, new offset: $currentOffset")
-                    }
+                if (newCharacters.isNotEmpty()) {
+                    // Обновляем последний загруженный ID
+                    _lastLoadedId.value = newCharacters.maxByOrNull { it.id }?.id ?: currentLastId
+                    Timber.d("Успешно загружено ${newCharacters.size} новых персонажей. Новый lastLoadedId: ${_lastLoadedId.value}")
+                } else {
+                    Timber.w("Не удалось загрузить новых персонажей")
+                    _hasMoreData.value = false
                 }
-                // Если данных в базе недостаточно, загружаем из API
-                else {
-                    Timber.w("Данных в базе недостаточно. Загружаем из API...")
-                    loadFromApi()
-                }
-
-                // Всегда обновляем состояние после загрузки
-                updateHasMoreDataState()
 
             } catch (e: Exception) {
-                Timber.e(e, "Ошибка загрузки данных")
-                _error.value = "Ошибка загрузки данных: ${e.message}"
+                Timber.e(e, "Ошибка загрузки дополнительных персонажей")
+                _error.value = "Ошибка загрузки: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
         }
     }
-
-    private suspend fun loadFromApi() {
-        try {
-            // Получаем последний ID из базы
-            val lastId = repository.getLastCharacterId()
-            val nextStartId = lastId + 1
-
-            // Загружаем 10 персонажей из API
-            val newCharacters = repository.loadMoreCharacters(nextStartId, 10)
-
-            if (newCharacters.isEmpty()) {
-                Timber.w("API вернул пустой результат. Больше данных нет.")
-                return
-            }
-
-            // Сохраняем новые персонажи в базу
-            newCharacters.forEach { character ->
-                repository.saveCharacterToDatabase(character)
-            }
-
-            // Обновляем общее количество в базе
-            totalCountInDb = repository.getTotalCharactersCount()
-
-            // Добавляем к существующим данным
-            val updatedList = _characters.value.toMutableList()
-            updatedList.addAll(newCharacters)
-            _characters.value = updatedList
-
-            currentOffset += newCharacters.size
-
-            Timber.d("Загружено из API: ${newCharacters.size}, new offset: $currentOffset, total in DB: $totalCountInDb")
-
-        } catch (e: Exception) {
-            Timber.e(e, "Ошибка загрузки из API")
-            throw e
-        }
-    }
-
-    private fun updateHasMoreDataState() {
-        viewModelScope.launch {
-            // Проверяем, есть ли еще данные в API для загрузки
-            val hasMoreInApi = currentOffset < maxApiLimit
-
-            // Проверяем, есть ли еще данные в базе
-            val hasMoreInDb = currentOffset < totalCountInDb
-
-            // Кнопка должна быть видна, если есть данные в базе ИЛИ в API
-            val hasMoreData = hasMoreInDb || hasMoreInApi
-
-            _hasMoreData.value = hasMoreData
-            Timber.d("Обновление состояния: currentOffset=$currentOffset, totalCountInDb=$totalCountInDb, maxApiLimit=$maxApiLimit, hasMoreData=$hasMoreData")
-        }
-    }
-
-    // Загрузка определенного количества персонажей с заданного offset
-    private suspend fun loadCharacters(limit: Int, offset: Int) {
-        val characters = repository.getCharactersForDisplay(limit, offset)
-        _characters.value = characters
-        currentOffset = offset + limit
-        Timber.d("Загружено: ${characters.size}, Offset: $currentOffset")
-    }
-
 
     fun refreshCharacters() {
         viewModelScope.launch {
@@ -177,22 +140,21 @@ class HomeViewModel(private val repository: CharacterRepository) : ViewModel() {
             _error.value = null
 
             try {
-                // Обновляем все данные из API
-                repository.refreshAllData()
+                Timber.d("Начало полного обновления данных")
 
-                // Сбрасываем offset и загружаем первые 20
-                currentOffset = 0
-                loadCharacters(20, 0)
-
-                // Обновляем общее количество
-                totalCountInDb = repository.getTotalCharactersCount()
+                // Полная перезагрузка данных из API
+                val refreshedCharacters = repository.refreshAllData()
 
                 // Обновляем состояние
-                updateHasMoreDataState()
+                totalCountInDb = refreshedCharacters.size
+                _lastLoadedId.value = totalCountInDb
+                _hasMoreData.value = totalCountInDb < maxApiLimit
+
+                Timber.d("Данные успешно обновлены. Всего персонажей: $totalCountInDb")
 
             } catch (e: Exception) {
                 Timber.e(e, "Ошибка обновления данных")
-                _error.value = "Ошибка обновления данных: ${e.message}"
+                _error.value = "Ошибка обновления: ${e.message}"
             } finally {
                 _isLoading.value = false
             }

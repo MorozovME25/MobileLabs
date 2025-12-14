@@ -76,32 +76,29 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun setupObservers() {
+        // Наблюдаем за персонажами - теперь это реактивный поток
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.characters.collectLatest { characters ->
-                    Timber.d("Получены персонажи для отображения: ${characters.size}")
+                    Timber.d("Получены все персонажи для отображения: ${characters.size}")
                     binding.tvEmpty.visibility = if (characters.isEmpty()) View.VISIBLE else View.GONE
 
-                    // Если это начальная загрузка или обновление - заменяем все данные
-                    if (viewModel.isInitialLoading.value || binding.recycle.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
-                        characterAdapter.updateData(characters)
-                    }
-                    // Если это загрузка дополнительных данных - добавляем к существующим
-                    else {
-                        characterAdapter.addItems(characters.subList(characterAdapter.itemCount, characters.size))
-                    }
+                    // Обновляем ВСЕ данные в адаптере
+                    characterAdapter.updateData(characters)
 
                     settingsViewModel.updateCharacters(characters)
                 }
             }
         }
 
+        // Наблюдаем за состоянием загрузки
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.isLoading.collectLatest { isLoading ->
-                    binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-                    binding.swipeRefresh.isRefreshing = isLoading
+                    binding.progressBar.visibility = if (isLoading && !viewModel.isInitialLoading.value) View.VISIBLE else View.GONE
+                    binding.swipeRefresh.isRefreshing = isLoading && !viewModel.isInitialLoading.value
 
+                    // Обновляем состояние футера (загрузка новых данных из API)
                     if (!isLoading) {
                         characterAdapter.updateLoadingState(
                             isLoading = isLoading,
@@ -112,10 +109,11 @@ class HomeFragment : BaseFragment() {
             }
         }
 
+        // Наблюдаем за состоянием hasMoreData
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.hasMoreData.collectLatest { hasMore ->
-                    Timber.d("Состояние hasMoreData изменено: $hasMore")
+                    Timber.d("Состояние hasMoreData для загрузки из API: $hasMore")
                     characterAdapter.updateLoadingState(
                         isLoading = viewModel.isLoading.value,
                         hasMore = hasMore
@@ -124,6 +122,7 @@ class HomeFragment : BaseFragment() {
             }
         }
 
+        // Наблюдаем за ошибками
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.error.collectLatest { error ->
@@ -134,10 +133,17 @@ class HomeFragment : BaseFragment() {
             }
         }
 
+        // Наблюдаем за начальной загрузкой
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.isInitialLoading.collectLatest { isInitialLoading ->
                     binding.progressBar.visibility = if (isInitialLoading) View.VISIBLE else View.GONE
+                    if (!isInitialLoading) {
+                        characterAdapter.updateLoadingState(
+                            isLoading = viewModel.isLoading.value,
+                            hasMore = viewModel.hasMoreData.value ?: true
+                        )
+                    }
                 }
             }
         }
